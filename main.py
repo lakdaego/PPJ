@@ -19,32 +19,28 @@ from pico2d import (
 
 CANVAS_WIDTH = 1280
 CANVAS_HEIGHT = 720
-IDLE_FRAME_SIZE = 160
-IDLE_FRAME_BOTTOM = 816
-IDLE_FRAME_LEFTS = (50, 200, 360, 515)
-IDLE_FOOT_ANCHORS = (79.5, 79.5, 80.5, 80)
-IDLE_FOOT_ANCHOR_Y = 129.5
+FRAME_SIZE = 160
+IDLE_FRAME_BOTTOM = 160
+IDLE_FRAME_LEFTS = (0, 160, 320, 480)
+IDLE_FRAME_ANCHOR_XS = (100.5, 97.5, 96.8, 94.9)
+IDLE_FRAME_ANCHOR_YS = (134, 134, 135, 135)
 IDLE_FRAME_DURATION = 0.18
-RUN_FRAME_WIDTH = 160
-RUN_FRAME_HEIGHT = 140
-RUN_FRAME_LEFTS = (52, 196, 378, 560, 749, 945, 1174)
-RUN_FRAME_BOTTOMS = (647, 639, 638, 637, 634, 634, 630)
-RUN_FOOT_ANCHORS = (79.5, 68.5, 65.5, 66, 66, 66.5, 84.5)
-RUN_FOOT_ANCHOR_Y = 120
+RUN_FRAME_BOTTOM = 0
+RUN_FRAME_LEFTS = (0, 160, 320, 480, 640, 800, 960)
+RUN_FRAME_ANCHOR_XS = (96.1, 97.7, 104.2, 97.5, 105.4, 97.6, 103.4)
+RUN_FRAME_ANCHOR_YS = (131, 132, 128, 132, 131, 129, 132)
 RUN_FRAME_DURATION = 0.1
 PLAYER_SIZE = 80
 PLAYER_SPEED = 300
 PLAYER_MARGIN = PLAYER_SIZE * 0.6
-PLAYER_FOOT_Y = CANVAS_HEIGHT // 2 - (
-    IDLE_FOOT_ANCHOR_Y - IDLE_FRAME_SIZE / 2
-) * PLAYER_SIZE / IDLE_FRAME_SIZE
+IDLE_REFERENCE_ANCHOR_Y = sum(IDLE_FRAME_ANCHOR_YS) / len(IDLE_FRAME_ANCHOR_YS)
 
 
 def main():
     open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT)
     try:
         sprite_sheet = load_image(
-            str(Path(__file__).with_name("robot_sheet_transparent.png"))
+            str(Path(__file__).with_name("robot_animation_sheet.png"))
         )
         player_x = CANVAS_WIDTH // 2
         left_pressed = False
@@ -97,11 +93,9 @@ def main():
                     % len(RUN_FRAME_LEFTS)
                 )
                 frame_left = RUN_FRAME_LEFTS[frame_index]
-                frame_bottom = RUN_FRAME_BOTTOMS[frame_index]
-                frame_width = RUN_FRAME_WIDTH
-                frame_height = RUN_FRAME_HEIGHT
-                foot_anchor_x = RUN_FOOT_ANCHORS[frame_index]
-                foot_anchor_y = RUN_FOOT_ANCHOR_Y
+                frame_bottom = RUN_FRAME_BOTTOM
+                frame_anchor_x = RUN_FRAME_ANCHOR_XS[frame_index]
+                frame_anchor_y = RUN_FRAME_ANCHOR_YS[frame_index]
             else:
                 if was_moving:
                     idle_animation_start = current_time
@@ -111,42 +105,37 @@ def main():
                 )
                 frame_left = IDLE_FRAME_LEFTS[frame_index]
                 frame_bottom = IDLE_FRAME_BOTTOM
-                frame_width = IDLE_FRAME_SIZE
-                frame_height = IDLE_FRAME_SIZE
-                foot_anchor_x = IDLE_FOOT_ANCHORS[frame_index]
-                foot_anchor_y = IDLE_FOOT_ANCHOR_Y
+                frame_anchor_x = IDLE_FRAME_ANCHOR_XS[frame_index]
+                frame_anchor_y = IDLE_FRAME_ANCHOR_YS[frame_index]
 
             was_moving = direction != 0
             visual_anchor_x = (
-                frame_width - foot_anchor_x if facing < 0 else foot_anchor_x
+                FRAME_SIZE - frame_anchor_x if facing < 0 else frame_anchor_x
             )
             frame_x = round(
                 player_x
-                + (frame_width / 2 - visual_anchor_x)
-                * PLAYER_SIZE
-                / frame_width
+                + (FRAME_SIZE / 2 - visual_anchor_x) * PLAYER_SIZE / FRAME_SIZE
             )
             frame_y = round(
-                PLAYER_FOOT_Y
-                + (foot_anchor_y - frame_height / 2)
+                CANVAS_HEIGHT / 2
+                + (frame_anchor_y - IDLE_REFERENCE_ANCHOR_Y)
                 * PLAYER_SIZE
-                / frame_width
+                / FRAME_SIZE
             )
-            frame_draw_height = round(PLAYER_SIZE * frame_height / frame_width)
             flip = "h" if facing < 0 else ""
 
             clear_canvas()
             sprite_sheet.clip_composite_draw(
                 frame_left,
                 frame_bottom,
-                frame_width,
-                frame_height,
+                FRAME_SIZE,
+                FRAME_SIZE,
                 0,
                 flip,
                 frame_x,
                 frame_y,
                 PLAYER_SIZE,
-                frame_draw_height,
+                PLAYER_SIZE,
             )
             update_canvas()
 
