@@ -76,6 +76,9 @@ IDLE_REFERENCE_ANCHOR_Y = sum(IDLE_FRAME_ANCHOR_YS) / len(IDLE_FRAME_ANCHOR_YS)
 def main():
     open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT)
     try:
+        background_image = load_image(
+            str(Path(__file__).with_name("back.png"))
+        )
         sprite_sheet = load_image(
             str(Path(__file__).with_name("robot_animation_sheet.png"))
         )
@@ -359,6 +362,12 @@ def main():
             flip = "h" if facing < 0 else ""
 
             clear_canvas()
+            background_image.draw(
+                CANVAS_WIDTH / 2,
+                CANVAS_HEIGHT / 2,
+                CANVAS_WIDTH,
+                CANVAS_HEIGHT,
+            )
             frame_image.clip_composite_draw(
                 frame_left,
                 frame_bottom,
