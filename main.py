@@ -74,6 +74,12 @@ FLOOR_TILE_WIDTH = 320
 FLOOR_TILE_HEIGHT = 221
 FLOOR_TILE_OFFSET_Y = -FLOOR_TILE_HEIGHT / 2
 FLOOR_GROUND_Y = 90
+FIELD_OBJECT_GROUND_Y = FLOOR_GROUND_Y - 20
+SHELTER_X = 260
+SHELTER_WIDTH = 130
+SHELTER_HEIGHT = 164
+BATTERY_X = 980
+BATTERY_SIZE = 52
 IDLE_REFERENCE_ANCHOR_Y = sum(IDLE_FRAME_ANCHOR_YS) / len(IDLE_FRAME_ANCHOR_YS)
 
 
@@ -85,6 +91,12 @@ def main():
         )
         floor_image = load_image(
             str(Path(__file__).with_name("sp1_floor_tile.png"))
+        )
+        shelter_image = load_image(
+            str(Path(__file__).with_name("shelter.png"))
+        )
+        battery_image = load_image(
+            str(Path(__file__).with_name("battery.png"))
         )
         sprite_sheet = load_image(
             str(Path(__file__).with_name("robot_animation_sheet.png"))
@@ -384,6 +396,18 @@ def main():
                     FLOOR_TILE_WIDTH,
                     FLOOR_TILE_HEIGHT,
                 )
+            shelter_image.draw(
+                SHELTER_X,
+                FIELD_OBJECT_GROUND_Y + SHELTER_HEIGHT / 2,
+                SHELTER_WIDTH,
+                SHELTER_HEIGHT,
+            )
+            battery_image.draw(
+                BATTERY_X,
+                FIELD_OBJECT_GROUND_Y + BATTERY_SIZE / 2,
+                BATTERY_SIZE,
+                BATTERY_SIZE,
+            )
             frame_image.clip_composite_draw(
                 frame_left,
                 frame_bottom,
