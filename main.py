@@ -56,7 +56,8 @@ ATTACK_FRAME_HEIGHT = 160
 ATTACK_FRAME_LEFTS = (0, 224, 448, 672, 896, 1120, 1344, 1568, 1792)
 ATTACK_FRAME_ANCHOR_XS = (89.5, 84, 97, 88.5, 85.5, 80.5, 74.5, 69.5, 91.5)
 ATTACK_FRAME_ANCHOR_YS = (152, 152, 151, 151, 149, 151, 151, 155, 155)
-ATTACK_FRAME_DURATIONS = (0.1, 0.1, 0.09, 0.09, 0.09, 0.09, 0.1, 0.1, 0.12)
+ATTACK_FRAME_SEQUENCE = (3, 4, 5, 6, 7, 8)
+ATTACK_FRAME_DURATIONS = (0.035, 0.035, 0.035, 0.06, 0.035, 0.035)
 ATTACK_TOTAL_DURATION = sum(ATTACK_FRAME_DURATIONS)
 JUMP_INITIAL_VELOCITY = 480
 GRAVITY = 1400
@@ -236,10 +237,11 @@ def main():
                 ):
                     attack_elapsed -= ATTACK_FRAME_DURATIONS[frame_index]
                     frame_index += 1
-                frame_left = ATTACK_FRAME_LEFTS[frame_index]
+                attack_frame_index = ATTACK_FRAME_SEQUENCE[frame_index]
+                frame_left = ATTACK_FRAME_LEFTS[attack_frame_index]
                 frame_bottom = 0
-                frame_anchor_x = ATTACK_FRAME_ANCHOR_XS[frame_index]
-                frame_anchor_y = ATTACK_FRAME_ANCHOR_YS[frame_index]
+                frame_anchor_x = ATTACK_FRAME_ANCHOR_XS[attack_frame_index]
+                frame_anchor_y = ATTACK_FRAME_ANCHOR_YS[attack_frame_index]
                 frame_width = ATTACK_FRAME_WIDTH
                 frame_height = ATTACK_FRAME_HEIGHT
                 draw_width = round(
