@@ -10,6 +10,7 @@ from pico2d import (
     SDLK_RIGHT,
     SDLK_SPACE,
     SDLK_x,
+    SDLK_z,
     clear_canvas,
     close_canvas,
     delay,
@@ -50,6 +51,13 @@ BOOST_STARTUP_DURATION = 0.06
 BOOST_IGNITION_DURATION = 0.06
 BOOST_FRAME_DURATION = 0.09
 BOOST_HOVER_FRAME_SEQUENCE = (2, 3, 4, 5, 6, 7, 8, 7, 6, 5, 4, 3)
+ATTACK_FRAME_WIDTH = 224
+ATTACK_FRAME_HEIGHT = 160
+ATTACK_FRAME_LEFTS = (0, 224, 448, 672, 896, 1120, 1344, 1568, 1792)
+ATTACK_FRAME_ANCHOR_XS = (89.5, 84, 97, 88.5, 85.5, 80.5, 74.5, 69.5, 91.5)
+ATTACK_FRAME_ANCHOR_YS = (152, 152, 151, 151, 149, 151, 151, 155, 155)
+ATTACK_FRAME_DURATIONS = (0.1, 0.1, 0.09, 0.09, 0.09, 0.09, 0.1, 0.1, 0.12)
+ATTACK_TOTAL_DURATION = sum(ATTACK_FRAME_DURATIONS)
 JUMP_INITIAL_VELOCITY = 480
 GRAVITY = 1400
 JUMP_APEX_TIME = JUMP_INITIAL_VELOCITY / GRAVITY
@@ -73,11 +81,17 @@ def main():
         jetpack_sheet = load_image(
             str(Path(__file__).with_name("robot_jetpack_sheet.png"))
         )
+        attack_sheet = load_image(
+            str(Path(__file__).with_name("robot_attack_sheet.png"))
+        )
         player_x = CANVAS_WIDTH // 2
         left_pressed = False
         right_pressed = False
         space_pressed = False
         jetpack_pressed = False
+        attack_pressed = False
+        is_attacking = False
+        attack_started_at = 0.0
         facing = 1
         was_moving = False
         was_falling = False
@@ -126,6 +140,11 @@ def main():
                             player_height = 0.0
                             vertical_velocity = 0.0
                             landing_until = 0.0
+                    elif event.key == SDLK_z and not attack_pressed:
+                        attack_pressed = True
+                        if not is_attacking:
+                            is_attacking = True
+                            attack_started_at = current_time
                 elif event.type == SDL_KEYUP:
                     if event.key == SDLK_LEFT:
                         left_pressed = False
@@ -137,6 +156,8 @@ def main():
                         jetpack_pressed = False
                         if is_airborne and vertical_velocity > 0:
                             vertical_velocity = 0.0
+                    elif event.key == SDLK_z:
+                        attack_pressed = False
 
             if not game_running:
                 break
@@ -194,11 +215,38 @@ def main():
             if not is_airborne and landing_until and current_time >= landing_until:
                 landing_until = 0.0
 
+            if (
+                is_attacking
+                and current_time - attack_started_at >= ATTACK_TOTAL_DURATION
+            ):
+                is_attacking = False
+
+            frame_width = FRAME_SIZE
             frame_height = FRAME_SIZE
+            draw_width = PLAYER_SIZE
             draw_height = PLAYER_SIZE
             frame_image = sprite_sheet
 
-            if is_airborne and jetpack_pressed:
+            if is_attacking:
+                attack_elapsed = current_time - attack_started_at
+                frame_index = 0
+                while (
+                    frame_index < len(ATTACK_FRAME_DURATIONS) - 1
+                    and attack_elapsed >= ATTACK_FRAME_DURATIONS[frame_index]
+                ):
+                    attack_elapsed -= ATTACK_FRAME_DURATIONS[frame_index]
+                    frame_index += 1
+                frame_left = ATTACK_FRAME_LEFTS[frame_index]
+                frame_bottom = 0
+                frame_anchor_x = ATTACK_FRAME_ANCHOR_XS[frame_index]
+                frame_anchor_y = ATTACK_FRAME_ANCHOR_YS[frame_index]
+                frame_width = ATTACK_FRAME_WIDTH
+                frame_height = ATTACK_FRAME_HEIGHT
+                draw_width = round(
+                    PLAYER_SIZE * ATTACK_FRAME_WIDTH / FRAME_SIZE
+                )
+                frame_image = attack_sheet
+            elif is_airborne and jetpack_pressed:
                 boost_elapsed = current_time - boost_animation_start
                 if boost_elapsed < BOOST_STARTUP_DURATION:
                     boost_frame_index = 0
@@ -287,11 +335,13 @@ def main():
                 frame_anchor_y = IDLE_FRAME_ANCHOR_YS[frame_index]
                 was_moving = False
             visual_anchor_x = (
-                FRAME_SIZE - frame_anchor_x if facing < 0 else frame_anchor_x
+                frame_width - frame_anchor_x if facing < 0 else frame_anchor_x
             )
             frame_x = round(
                 player_x
-                + (FRAME_SIZE / 2 - visual_anchor_x) * PLAYER_SIZE / FRAME_SIZE
+                + (frame_width / 2 - visual_anchor_x)
+                * PLAYER_SIZE
+                / FRAME_SIZE
             )
             frame_y = round(
                 CANVAS_HEIGHT / 2
@@ -310,13 +360,13 @@ def main():
             frame_image.clip_composite_draw(
                 frame_left,
                 frame_bottom,
-                FRAME_SIZE,
+                frame_width,
                 frame_height,
                 0,
                 flip,
                 frame_x,
                 frame_y,
-                PLAYER_SIZE,
+                draw_width,
                 draw_height,
             )
             update_canvas()
