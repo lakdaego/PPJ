@@ -72,7 +72,8 @@ PLAYER_SPEED = 207
 PLAYER_MARGIN = PLAYER_SIZE * 0.6
 FLOOR_TILE_WIDTH = 320
 FLOOR_TILE_HEIGHT = 221
-FLOOR_GROUND_Y = 180
+FLOOR_TILE_OFFSET_Y = -FLOOR_TILE_HEIGHT / 2
+FLOOR_GROUND_Y = 90
 IDLE_REFERENCE_ANCHOR_Y = sum(IDLE_FRAME_ANCHOR_YS) / len(IDLE_FRAME_ANCHOR_YS)
 
 
@@ -379,7 +380,7 @@ def main():
             ):
                 floor_image.draw(
                     floor_center_x,
-                    FLOOR_TILE_HEIGHT / 2,
+                    FLOOR_TILE_HEIGHT / 2 + FLOOR_TILE_OFFSET_Y,
                     FLOOR_TILE_WIDTH,
                     FLOOR_TILE_HEIGHT,
                 )
