@@ -70,6 +70,9 @@ LANDING_DURATION = 0.1
 PLAYER_SIZE = 64
 PLAYER_SPEED = 207
 PLAYER_MARGIN = PLAYER_SIZE * 0.6
+FLOOR_TILE_WIDTH = 320
+FLOOR_TILE_HEIGHT = 221
+FLOOR_GROUND_Y = 180
 IDLE_REFERENCE_ANCHOR_Y = sum(IDLE_FRAME_ANCHOR_YS) / len(IDLE_FRAME_ANCHOR_YS)
 
 
@@ -78,6 +81,9 @@ def main():
     try:
         background_image = load_image(
             str(Path(__file__).with_name("back.png"))
+        )
+        floor_image = load_image(
+            str(Path(__file__).with_name("sp1_floor_tile.png"))
         )
         sprite_sheet = load_image(
             str(Path(__file__).with_name("robot_animation_sheet.png"))
@@ -349,7 +355,7 @@ def main():
                 / FRAME_SIZE
             )
             frame_y = round(
-                CANVAS_HEIGHT / 2
+                FLOOR_GROUND_Y
                 + (
                     frame_anchor_y
                     - IDLE_REFERENCE_ANCHOR_Y
@@ -368,6 +374,15 @@ def main():
                 CANVAS_WIDTH,
                 CANVAS_HEIGHT,
             )
+            for floor_center_x in range(
+                0, CANVAS_WIDTH + FLOOR_TILE_WIDTH, FLOOR_TILE_WIDTH
+            ):
+                floor_image.draw(
+                    floor_center_x,
+                    FLOOR_TILE_HEIGHT / 2,
+                    FLOOR_TILE_WIDTH,
+                    FLOOR_TILE_HEIGHT,
+                )
             frame_image.clip_composite_draw(
                 frame_left,
                 frame_bottom,
