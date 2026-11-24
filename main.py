@@ -82,8 +82,8 @@ SHELTER_HEIGHT = 82
 BATTERY_X = 980
 BATTERY_SIZE = 52
 HUD_MARGIN = 24
-HUD_WIDTH = 297
-HUD_HEIGHT = 22
+HUD_WIDTH = 238
+HUD_HEIGHT = 18
 HUD_IMAGE_CENTER_X = HUD_MARGIN + HUD_WIDTH / 2
 HUD_IMAGE_CENTER_Y = HUD_MARGIN + HUD_HEIGHT / 2
 JETPACK_FUEL_MAX = 100.0
@@ -433,7 +433,7 @@ def main():
                 BATTERY_SIZE,
             )
             fuel_ratio = jetpack_fuel / JETPACK_FUEL_MAX
-            fuel_fill_width = HUD_WIDTH * fuel_ratio
+            fuel_fill_width = (HUD_WIDTH - 12) * fuel_ratio
             draw_rectangle(
                 HUD_MARGIN,
                 HUD_IMAGE_CENTER_Y - HUD_HEIGHT / 2,
@@ -455,9 +455,9 @@ def main():
                 hud_fill_image.clip_draw(
                     0,
                     0,
-                    round(HUD_WIDTH * fuel_ratio),
-                    HUD_HEIGHT,
-                    HUD_MARGIN + fuel_fill_width / 2,
+                    round(371 * fuel_ratio),
+                    27,
+                    HUD_MARGIN + 6 + fuel_fill_width / 2,
                     HUD_IMAGE_CENTER_Y,
                     fuel_fill_width,
                     HUD_HEIGHT,
