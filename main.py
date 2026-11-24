@@ -433,7 +433,7 @@ def main():
                 BATTERY_SIZE,
             )
             fuel_ratio = jetpack_fuel / JETPACK_FUEL_MAX
-            fuel_fill_width = (HUD_WIDTH - 12) * fuel_ratio
+            fuel_fill_width = (HUD_WIDTH - 4) * fuel_ratio
             draw_rectangle(
                 HUD_MARGIN,
                 HUD_IMAGE_CENTER_Y - HUD_HEIGHT / 2,
@@ -457,7 +457,7 @@ def main():
                     0,
                     round(371 * fuel_ratio),
                     27,
-                    HUD_MARGIN + 6 + fuel_fill_width / 2,
+                    HUD_MARGIN + 2 + fuel_fill_width / 2,
                     HUD_IMAGE_CENTER_Y,
                     fuel_fill_width,
                     HUD_HEIGHT,
