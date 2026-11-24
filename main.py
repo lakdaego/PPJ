@@ -14,7 +14,6 @@ from pico2d import (
     clear_canvas,
     close_canvas,
     delay,
-    draw_rectangle,
     get_events,
     load_image,
     open_canvas,
@@ -82,18 +81,12 @@ SHELTER_HEIGHT = 82
 BATTERY_X = 980
 BATTERY_SIZE = 52
 HUD_X = 24
-HUD_Y = CANVAS_HEIGHT - 24
 HUD_WIDTH = 411
-HUD_HEIGHT = 88
+HUD_HEIGHT = 27
 HUD_IMAGE_CENTER_X = HUD_X + HUD_WIDTH / 2
 HUD_IMAGE_CENTER_Y = CANVAS_HEIGHT - 24 - HUD_HEIGHT / 2
-HUD_FILL_LEFT = HUD_X + 39
-HUD_FILL_RIGHT = HUD_X + HUD_WIDTH - 32
-HUD_FILL_BOTTOM = HUD_IMAGE_CENTER_Y + HUD_HEIGHT / 2 - 31
-HUD_FILL_TOP = HUD_IMAGE_CENTER_Y + HUD_HEIGHT / 2 - 21
 JETPACK_FUEL_MAX = 100.0
 JETPACK_FUEL_DRAIN_PER_SECOND = 24.0
-JETPACK_FUEL_RECHARGE_PER_SECOND = 12.0
 IDLE_REFERENCE_ANCHOR_Y = sum(IDLE_FRAME_ANCHOR_YS) / len(IDLE_FRAME_ANCHOR_YS)
 
 
@@ -112,8 +105,11 @@ def main():
         battery_image = load_image(
             str(Path(__file__).with_name("battery.png"))
         )
-        hud_image = load_image(
-            str(Path(__file__).with_name("hud1.PNG"))
+        hud_frame_image = load_image(
+            str(Path(__file__).with_name("hud1_frame.PNG"))
+        )
+        hud_fill_image = load_image(
+            str(Path(__file__).with_name("hud1_fill.PNG"))
         )
         sprite_sheet = load_image(
             str(Path(__file__).with_name("robot_animation_sheet.png"))
@@ -209,11 +205,6 @@ def main():
                 jetpack_fuel = max(
                     0.0,
                     jetpack_fuel - JETPACK_FUEL_DRAIN_PER_SECOND * delta_time,
-                )
-            elif not jetpack_pressed:
-                jetpack_fuel = min(
-                    JETPACK_FUEL_MAX,
-                    jetpack_fuel + JETPACK_FUEL_RECHARGE_PER_SECOND * delta_time,
                 )
             jetpack_active = jetpack_pressed and jetpack_fuel > 0
 
@@ -440,25 +431,24 @@ def main():
                 BATTERY_SIZE,
                 BATTERY_SIZE,
             )
-            hud_image.draw(
+            fuel_ratio = jetpack_fuel / JETPACK_FUEL_MAX
+            fuel_fill_width = HUD_WIDTH * fuel_ratio
+            hud_frame_image.draw(
                 HUD_IMAGE_CENTER_X,
                 HUD_IMAGE_CENTER_Y,
                 HUD_WIDTH,
                 HUD_HEIGHT,
             )
-            fuel_ratio = jetpack_fuel / JETPACK_FUEL_MAX
-            fuel_fill_width = (HUD_FILL_RIGHT - HUD_FILL_LEFT) * fuel_ratio
             if fuel_fill_width > 0:
-                draw_rectangle(
-                    HUD_FILL_LEFT,
-                    HUD_FILL_BOTTOM,
-                    HUD_FILL_LEFT + fuel_fill_width,
-                    HUD_FILL_TOP,
-                    35,
-                    110,
-                    255,
-                    255,
-                    True,
+                hud_fill_image.clip_draw(
+                    0,
+                    0,
+                    round(HUD_WIDTH * fuel_ratio),
+                    HUD_HEIGHT,
+                    HUD_X + fuel_fill_width / 2,
+                    HUD_IMAGE_CENTER_Y,
+                    fuel_fill_width,
+                    HUD_HEIGHT,
                 )
             frame_image.clip_composite_draw(
                 frame_left,
