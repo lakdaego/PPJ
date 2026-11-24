@@ -86,6 +86,11 @@ HUD_WIDTH = 238
 HUD_HEIGHT = 18
 HUD_IMAGE_CENTER_X = HUD_MARGIN + HUD_WIDTH / 2
 HUD_IMAGE_CENTER_Y = HUD_MARGIN + HUD_HEIGHT / 2
+HP_MAX = 6
+HP_FULL_START_COUNT = 3
+HP_ICON_SIZE = 24
+HP_ICON_SPACING = 2
+HP_Y = HUD_MARGIN + HUD_HEIGHT + HP_ICON_SIZE / 2
 JETPACK_FUEL_MAX = 100.0
 JETPACK_FUEL_DRAIN_PER_SECOND = 46.8
 IDLE_REFERENCE_ANCHOR_Y = sum(IDLE_FRAME_ANCHOR_YS) / len(IDLE_FRAME_ANCHOR_YS)
@@ -111,6 +116,12 @@ def main():
         )
         hud_fill_image = load_image(
             str(Path(__file__).with_name("hud1_fill.PNG"))
+        )
+        hp_empty_image = load_image(
+            str(Path(__file__).with_name("hud2_empty.PNG"))
+        )
+        hp_full_image = load_image(
+            str(Path(__file__).with_name("hud2_full.PNG"))
         )
         sprite_sheet = load_image(
             str(Path(__file__).with_name("robot_animation_sheet.png"))
@@ -141,6 +152,7 @@ def main():
         landing_until = 0.0
         jetpack_fuel = JETPACK_FUEL_MAX
         jetpack_active = False
+        hp = 3
         previous_time = perf_counter()
         idle_animation_start = previous_time
         run_animation_start = previous_time
@@ -461,6 +473,19 @@ def main():
                     HUD_IMAGE_CENTER_Y,
                     fuel_fill_width,
                     HUD_HEIGHT,
+                )
+            for hp_index in range(HP_MAX):
+                hp_image = hp_full_image if hp_index < HP_FULL_START_COUNT else hp_empty_image
+                hp_center_x = (
+                    HUD_MARGIN
+                    + HP_ICON_SIZE / 2
+                    + hp_index * (HP_ICON_SIZE + HP_ICON_SPACING)
+                )
+                hp_image.draw(
+                    hp_center_x,
+                    HP_Y,
+                    HP_ICON_SIZE,
+                    HP_ICON_SIZE,
                 )
             frame_image.clip_composite_draw(
                 frame_left,
