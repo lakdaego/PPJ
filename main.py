@@ -14,6 +14,7 @@ from pico2d import (
     clear_canvas,
     close_canvas,
     delay,
+    draw_rectangle,
     get_events,
     load_image,
     open_canvas,
@@ -80,6 +81,19 @@ SHELTER_WIDTH = 65
 SHELTER_HEIGHT = 82
 BATTERY_X = 980
 BATTERY_SIZE = 52
+HUD_X = 24
+HUD_Y = CANVAS_HEIGHT - 24
+HUD_WIDTH = 411
+HUD_HEIGHT = 88
+HUD_IMAGE_CENTER_X = HUD_X + HUD_WIDTH / 2
+HUD_IMAGE_CENTER_Y = CANVAS_HEIGHT - 24 - HUD_HEIGHT / 2
+HUD_FILL_LEFT = HUD_X + 39
+HUD_FILL_RIGHT = HUD_X + HUD_WIDTH - 32
+HUD_FILL_BOTTOM = HUD_IMAGE_CENTER_Y + HUD_HEIGHT / 2 - 31
+HUD_FILL_TOP = HUD_IMAGE_CENTER_Y + HUD_HEIGHT / 2 - 21
+JETPACK_FUEL_MAX = 100.0
+JETPACK_FUEL_DRAIN_PER_SECOND = 24.0
+JETPACK_FUEL_RECHARGE_PER_SECOND = 12.0
 IDLE_REFERENCE_ANCHOR_Y = sum(IDLE_FRAME_ANCHOR_YS) / len(IDLE_FRAME_ANCHOR_YS)
 
 
@@ -97,6 +111,9 @@ def main():
         )
         battery_image = load_image(
             str(Path(__file__).with_name("battery.png"))
+        )
+        hud_image = load_image(
+            str(Path(__file__).with_name("hud1.PNG"))
         )
         sprite_sheet = load_image(
             str(Path(__file__).with_name("robot_animation_sheet.png"))
@@ -125,6 +142,8 @@ def main():
         boost_animation_start = 0.0
         fall_animation_start = 0.0
         landing_until = 0.0
+        jetpack_fuel = JETPACK_FUEL_MAX
+        jetpack_active = False
         previous_time = perf_counter()
         idle_animation_start = previous_time
         run_animation_start = previous_time
@@ -156,13 +175,14 @@ def main():
                             was_falling = False
                     elif event.key == SDLK_x and not jetpack_pressed:
                         jetpack_pressed = True
-                        boost_animation_start = current_time
-                        was_falling = False
-                        if not is_airborne and current_time >= landing_until:
-                            is_airborne = True
-                            player_height = 0.0
-                            vertical_velocity = 0.0
-                            landing_until = 0.0
+                        if jetpack_fuel > 0:
+                            boost_animation_start = current_time
+                            was_falling = False
+                            if not is_airborne and current_time >= landing_until:
+                                is_airborne = True
+                                player_height = 0.0
+                                vertical_velocity = 0.0
+                                landing_until = 0.0
                     elif event.key == SDLK_z and not attack_pressed:
                         attack_pressed = True
                         if not is_attacking:
@@ -185,6 +205,18 @@ def main():
             if not game_running:
                 break
 
+            if jetpack_pressed and jetpack_fuel > 0:
+                jetpack_fuel = max(
+                    0.0,
+                    jetpack_fuel - JETPACK_FUEL_DRAIN_PER_SECOND * delta_time,
+                )
+            elif not jetpack_pressed:
+                jetpack_fuel = min(
+                    JETPACK_FUEL_MAX,
+                    jetpack_fuel + JETPACK_FUEL_RECHARGE_PER_SECOND * delta_time,
+                )
+            jetpack_active = jetpack_pressed and jetpack_fuel > 0
+
             direction = int(right_pressed) - int(left_pressed)
             if direction:
                 facing = direction
@@ -198,7 +230,7 @@ def main():
 
             if (
                 not is_airborne
-                and jetpack_pressed
+                and jetpack_active
                 and current_time >= landing_until
             ):
                 is_airborne = True
@@ -209,7 +241,7 @@ def main():
 
             if is_airborne:
                 previous_velocity = vertical_velocity
-                if jetpack_pressed:
+                if jetpack_active:
                     vertical_velocity = min(
                         vertical_velocity
                         + (JETPACK_THRUST - GRAVITY) * delta_time,
@@ -223,7 +255,7 @@ def main():
                 player_height += (
                     (previous_velocity + vertical_velocity) * 0.5 * delta_time
                 )
-                if jetpack_pressed and player_height >= JETPACK_MAX_HEIGHT:
+                if jetpack_active and player_height >= JETPACK_MAX_HEIGHT:
                     player_height = JETPACK_MAX_HEIGHT
                     vertical_velocity = 0.0
                 elif player_height <= 0 and vertical_velocity < 0:
@@ -270,7 +302,7 @@ def main():
                     PLAYER_SIZE * ATTACK_FRAME_WIDTH / FRAME_SIZE
                 )
                 frame_image = attack_sheet
-            elif is_airborne and jetpack_pressed:
+            elif is_airborne and jetpack_active:
                 boost_elapsed = current_time - boost_animation_start
                 if boost_elapsed < BOOST_STARTUP_DURATION:
                     boost_frame_index = 0
@@ -408,6 +440,26 @@ def main():
                 BATTERY_SIZE,
                 BATTERY_SIZE,
             )
+            hud_image.draw(
+                HUD_IMAGE_CENTER_X,
+                HUD_IMAGE_CENTER_Y,
+                HUD_WIDTH,
+                HUD_HEIGHT,
+            )
+            fuel_ratio = jetpack_fuel / JETPACK_FUEL_MAX
+            fuel_fill_width = (HUD_FILL_RIGHT - HUD_FILL_LEFT) * fuel_ratio
+            if fuel_fill_width > 0:
+                draw_rectangle(
+                    HUD_FILL_LEFT,
+                    HUD_FILL_BOTTOM,
+                    HUD_FILL_LEFT + fuel_fill_width,
+                    HUD_FILL_TOP,
+                    35,
+                    110,
+                    255,
+                    255,
+                    True,
+                )
             frame_image.clip_composite_draw(
                 frame_left,
                 frame_bottom,
