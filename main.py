@@ -14,6 +14,7 @@ from pico2d import (
     clear_canvas,
     close_canvas,
     delay,
+    draw_rectangle,
     get_events,
     load_image,
     open_canvas,
@@ -80,11 +81,11 @@ SHELTER_WIDTH = 65
 SHELTER_HEIGHT = 82
 BATTERY_X = 980
 BATTERY_SIZE = 52
-HUD_X = 24
-HUD_WIDTH = 411
+HUD_MARGIN = 24
+HUD_WIDTH = 371
 HUD_HEIGHT = 27
-HUD_IMAGE_CENTER_X = HUD_X + HUD_WIDTH / 2
-HUD_IMAGE_CENTER_Y = CANVAS_HEIGHT - 24 - HUD_HEIGHT / 2
+HUD_IMAGE_CENTER_X = HUD_MARGIN + HUD_WIDTH / 2
+HUD_IMAGE_CENTER_Y = HUD_MARGIN + HUD_HEIGHT / 2
 JETPACK_FUEL_MAX = 100.0
 JETPACK_FUEL_DRAIN_PER_SECOND = 24.0
 IDLE_REFERENCE_ANCHOR_Y = sum(IDLE_FRAME_ANCHOR_YS) / len(IDLE_FRAME_ANCHOR_YS)
@@ -433,6 +434,17 @@ def main():
             )
             fuel_ratio = jetpack_fuel / JETPACK_FUEL_MAX
             fuel_fill_width = HUD_WIDTH * fuel_ratio
+            draw_rectangle(
+                HUD_MARGIN,
+                HUD_IMAGE_CENTER_Y - HUD_HEIGHT / 2,
+                HUD_MARGIN + HUD_WIDTH,
+                HUD_IMAGE_CENTER_Y + HUD_HEIGHT / 2,
+                20,
+                20,
+                30,
+                160,
+                True,
+            )
             hud_frame_image.draw(
                 HUD_IMAGE_CENTER_X,
                 HUD_IMAGE_CENTER_Y,
@@ -445,7 +457,7 @@ def main():
                     0,
                     round(HUD_WIDTH * fuel_ratio),
                     HUD_HEIGHT,
-                    HUD_X + fuel_fill_width / 2,
+                    HUD_MARGIN + fuel_fill_width / 2,
                     HUD_IMAGE_CENTER_Y,
                     fuel_fill_width,
                     HUD_HEIGHT,
