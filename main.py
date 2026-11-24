@@ -222,9 +222,10 @@ def main():
                 if jetpack_fuel <= 0 and fuel_was_full_or_above_zero:
                     hp = max(0, hp - 1)
                     fuel_was_full_or_above_zero = False
-            elif jetpack_fuel > 0:
-                fuel_was_full_or_above_zero = True
-            jetpack_active = jetpack_pressed and jetpack_fuel > 0
+                    if hp > 0:
+                        jetpack_fuel = JETPACK_FUEL_MAX
+                        fuel_was_full_or_above_zero = True
+            jetpack_active = jetpack_pressed and jetpack_fuel > 0 and hp > 0
 
             direction = int(right_pressed) - int(left_pressed)
             if direction:
