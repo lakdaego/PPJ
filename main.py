@@ -87,7 +87,6 @@ HUD_HEIGHT = 18
 HUD_IMAGE_CENTER_X = HUD_MARGIN + HUD_WIDTH / 2
 HUD_IMAGE_CENTER_Y = HUD_MARGIN + HUD_HEIGHT / 2
 HP_MAX = 6
-HP_FULL_START_COUNT = 3
 HP_ICON_SIZE = 28.8
 HP_ICON_SPACING = 2.4
 HP_Y = HUD_MARGIN + HUD_HEIGHT + HP_ICON_SIZE / 2
@@ -153,6 +152,7 @@ def main():
         jetpack_fuel = JETPACK_FUEL_MAX
         jetpack_active = False
         hp = 3
+        fuel_was_full_or_above_zero = True
         previous_time = perf_counter()
         idle_animation_start = previous_time
         run_animation_start = previous_time
@@ -219,6 +219,11 @@ def main():
                     0.0,
                     jetpack_fuel - JETPACK_FUEL_DRAIN_PER_SECOND * delta_time,
                 )
+                if jetpack_fuel <= 0 and fuel_was_full_or_above_zero:
+                    hp = max(0, hp - 1)
+                    fuel_was_full_or_above_zero = False
+            elif jetpack_fuel > 0:
+                fuel_was_full_or_above_zero = True
             jetpack_active = jetpack_pressed and jetpack_fuel > 0
 
             direction = int(right_pressed) - int(left_pressed)
@@ -475,7 +480,7 @@ def main():
                     HUD_HEIGHT,
                 )
             for hp_index in range(HP_MAX):
-                hp_image = hp_full_image if hp_index < HP_FULL_START_COUNT else hp_empty_image
+                hp_image = hp_full_image if hp_index < hp else hp_empty_image
                 hp_center_x = (
                     HUD_MARGIN
                     + HP_ICON_SIZE / 2
