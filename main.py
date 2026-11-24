@@ -99,37 +99,37 @@ def main():
     open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT)
     try:
         background_image = load_image(
-            str(Path(__file__).with_name("back.png"))
+            str(Path(__file__).parent / "images" / "background" / "back.png")
         )
         floor_image = load_image(
-            str(Path(__file__).with_name("sp1_floor_tile.png"))
+            str(Path(__file__).parent / "images" / "world" / "sp1_floor_tile.png")
         )
         shelter_image = load_image(
-            str(Path(__file__).with_name("shelter.png"))
+            str(Path(__file__).parent / "images" / "world" / "shelter.png")
         )
         battery_image = load_image(
-            str(Path(__file__).with_name("battery.png"))
+            str(Path(__file__).parent / "images" / "world" / "battery.png")
         )
         hud_frame_image = load_image(
-            str(Path(__file__).with_name("hud1_frame.PNG"))
+            str(Path(__file__).parent / "images" / "hud" / "hud1_frame.PNG")
         )
         hud_fill_image = load_image(
-            str(Path(__file__).with_name("hud1_fill.PNG"))
+            str(Path(__file__).parent / "images" / "hud" / "hud1_fill.PNG")
         )
         hp_empty_image = load_image(
-            str(Path(__file__).with_name("hud2_empty.PNG"))
+            str(Path(__file__).parent / "images" / "hud" / "hud2_empty.PNG")
         )
         hp_full_image = load_image(
-            str(Path(__file__).with_name("hud2_full.PNG"))
+            str(Path(__file__).parent / "images" / "hud" / "hud2_full.PNG")
         )
         sprite_sheet = load_image(
-            str(Path(__file__).with_name("robot_animation_sheet.png"))
+            str(Path(__file__).parent / "images" / "robot" / "robot_animation_sheet.png")
         )
         jetpack_sheet = load_image(
-            str(Path(__file__).with_name("robot_jetpack_sheet.png"))
+            str(Path(__file__).parent / "images" / "robot" / "robot_jetpack_sheet.png")
         )
         attack_sheet = load_image(
-            str(Path(__file__).with_name("robot_attack_sheet.png"))
+            str(Path(__file__).parent / "images" / "robot" / "robot_attack_sheet.png")
         )
         player_x = CANVAS_WIDTH // 2
         left_pressed = False
